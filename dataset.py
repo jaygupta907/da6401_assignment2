@@ -2,9 +2,11 @@ import torchvision
 import torchvision.transforms as transforms
 import os
 import zipfile
-import requests
 from torch.utils.data import DataLoader, random_split
 import subprocess
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class iNaturalistDataset:
     def __init__(self, dataset_path="iNaturalist_dataset",
@@ -21,15 +23,16 @@ class iNaturalistDataset:
         zip_path = "dataset.zip"
         if not os.path.exists(self.dataset_path):
 
-            print("Downloading dataset...")
+            logging.info("Downloading the Dataset ..........")
             subprocess.run(["wget", self.download_url, "-O", zip_path], check=True)
-            print("Extracting dataset...")
+
+            logging.info("Extracting the Dataset ..........")
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 zip_ref.extractall(self.dataset_path)
             os.remove(zip_path)
-            print("Dataset downloaded and extracted.")
+            logging.info("Dataset downloaded and extracted")
         else:
-            print("Dataset already exists.")
+            logging.warning("Dataset already exists")
 
     def _get_transforms(self):
         # Define data transformations
@@ -44,7 +47,7 @@ class iNaturalistDataset:
             augmentations = transforms.Compose([
                 transforms.RandomRotation(30),
                 transforms.RandomHorizontalFlip(),
-                transforms.RandomAffine(translate=(0.1, 0.1)),
+                transforms.RandomAffine(translate=(0.1, 0.1),degrees=0),
                 transforms.RandomResizedCrop(128, scale=(0.8, 1.0)),
             ])
             transform_list = [augmentations] + transform_list
@@ -73,6 +76,3 @@ class iNaturalistDataset:
         test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
         
         return train_loader, val_loader, test_loader
-
-
-dataset = iNaturalistDataset()
