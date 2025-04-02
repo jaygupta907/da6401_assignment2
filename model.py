@@ -48,6 +48,15 @@ class SmallCNN(nn.Module):
             nn.Linear(self.dense_neurons, self.num_classes)
         )
 
+        self._initialize_weights()
+
+    def _initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+                nn.init.xavier_uniform_(m.weight)
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
+    
     def get_conv_output_size(self):
         dummy_input = torch.ones(1, 3, *self.input_size)
         x = self.conv_layers(dummy_input)
