@@ -25,6 +25,8 @@ class Trainer:
     def train(self):
         self.model.to(self.device)
         
+        scaler = torch.amp.GradScaler('cuda')
+
         for epoch in range(self.num_epochs):
             self.model.train()
             running_loss, correct, total = 0.0, 0, 0
@@ -33,15 +35,20 @@ class Trainer:
                 images, labels = images.to(self.device), labels.to(self.device)
 
                 self.optimizer.zero_grad()
-                outputs = self.model(images)
-                loss = self.criterion(outputs, labels)
-                loss.backward()
-                self.optimizer.step()
+
+                with torch.amp.autocast('cuda'):
+                    outputs = self.model(images)
+                    loss = self.criterion(outputs, labels)
+
+                scaler.scale(loss).backward()
+                scaler.step(self.optimizer)
+                scaler.update()
 
                 running_loss += loss.item() * images.size(0)
                 _, predicted = torch.max(outputs, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
+
 
             train_loss = running_loss / total
             train_accuracy = 100 * correct / total

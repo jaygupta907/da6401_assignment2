@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 from training import Trainer
 from config import get_args
-
+import wandb
 
 
 
@@ -14,6 +14,14 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger()
 
 args = get_args()
+
+experiment_name = ''
+# wandb.init(project=args.wandb_project,
+#             entity=args.wandb_entity,
+#             config=args,
+#             name=experiment_name
+# )
+
 
 def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -28,9 +36,18 @@ def main():
     )
     train_loader, val_loader, test_loader = dataset.get_dataloaders()
 
+    num_filters = None
+    if args.filter_depth == 'same':
+        num_filters = [64,64,64,64,64]
+    elif args.filter_depth == 'increasing':
+        num_filters = [32,64,128,256,512]
+    else:
+        num_filters = [512,256,128,64,32]
+
+    
     # Initialize model
     model = SmallCNN(
-        input_channels=3,num_layers=5, num_filters=[64,128,256,256,512], kernel_size=[3,3,3,3,3],
+        input_channels=3,num_layers=5, num_filters=num_filters, kernel_size=[3,3,3,3,3],
         activation='relu', dense_neurons=2048, apply_batch_norm=args.apply_batch_norm,
         num_classes=10,input_size=[128,128]
     )
