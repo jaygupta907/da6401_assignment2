@@ -5,6 +5,7 @@ import logging
 from model import SmallCNN
 from dataset import iNaturalistDataset
 from tqdm import tqdm
+import wandb
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -25,8 +26,6 @@ class Trainer:
     def train(self):
         self.model.to(self.device)
         
-        scaler = torch.amp.GradScaler('cuda')
-
         for epoch in range(self.num_epochs):
             self.model.train()
             running_loss, correct, total = 0.0, 0, 0
@@ -35,28 +34,24 @@ class Trainer:
                 images, labels = images.to(self.device), labels.to(self.device)
 
                 self.optimizer.zero_grad()
-
-                with torch.amp.autocast('cuda'):
-                    outputs = self.model(images)
-                    loss = self.criterion(outputs, labels)
-
-                scaler.scale(loss).backward()
-                scaler.step(self.optimizer)
-                scaler.update()
+                outputs = self.model(images)
+                loss = self.criterion(outputs, labels)
+                loss.backward()
+                self.optimizer.step()
 
                 running_loss += loss.item() * images.size(0)
                 _, predicted = torch.max(outputs, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
-
             train_loss = running_loss / total
             train_accuracy = 100 * correct / total
+            wandb.log({"train_loss": train_loss, "train_accuracy": train_accuracy})
             if (epoch + 1) % self.eval_frequency == 0:
                 logger.info("Evaluating on validation dataset")
-                val_accuracy = self.evaluate(self.val_loader)
-                logger.info(f"Epoch [{epoch+1}/{self.num_epochs}] | Train Loss: {train_loss:.4f} | Train Accuracy: {train_accuracy:.2f}% | Val Acccuracy: {val_accuracy:.2f}%")
-
+                val_accuracy , validation_loss = self.evaluate(self.val_loader)
+                wandb.log({"val_accuracy": val_accuracy, "val_loss": validation_loss})
+                logger.info(f"Epoch [{epoch+1}/{self.num_epochs}] | Train Loss: {train_loss:.4f} | Train Accuracy: {train_accuracy:.2f}% | Val Loss :{validation_loss:.4f}| Val Acccuracy: {val_accuracy:.2f}%")
             else: 
                 logger.info(f"Epoch [{epoch+1}/{self.num_epochs}] | Train Loss: {train_loss:.4f} | Train Accuracy: {train_accuracy:.2f}%")
 
@@ -64,64 +59,19 @@ class Trainer:
     def evaluate(self, loader):
         self.model.eval()
         correct, total = 0, 0
+        running_loss = 0.0  
         with torch.no_grad():
             for images, labels in tqdm(loader):
                 images, labels = images.to(self.device), labels.to(self.device)
                 outputs = self.model(images)
+                running_loss += self.criterion(outputs, labels).item() * images.size(0)
                 _, predicted = torch.max(outputs, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
-        return 100 * correct / total
+        return 100 * correct / total , running_loss / total
 
     def test(self):
-        test_accuracy = self.evaluate(self.test_loader)
+        test_accuracy ,test_loss= self.evaluate(self.test_loader)
         logger.info(f"Test Accuracy: {test_accuracy:.2f}%")
-        return test_accuracy
-
-def main():
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    logger.info(f"Using device: {device}")
-
-    # Load dataset
-    dataset = iNaturalistDataset(
-        dataset_path="iNaturalist_dataset",
-        batch_size=32,
-        apply_augmentation=True,
-        download_url="https://storage.googleapis.com/wandb_datasets/nature_12K.zip"
-    )
-    train_loader, val_loader, test_loader = dataset.get_dataloaders()
-
-    # Initialize model
-    model = SmallCNN(
-        input_channels=3,num_layers=5, num_filters=[64,128,256,256,512], kernel_size=[3,3,3,3,3],
-        activation='relu', dense_neurons=2048, apply_batch_norm=True,
-        num_classes=10,input_size=[128,128]
-    )
-
-    # Define loss and optimizer
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.0003)
-
-    # Initialize trainer
-    trainer = Trainer(
-        model=model,
-        train_loader=train_loader,
-        val_loader=val_loader,
-        test_loader=test_loader,
-        criterion=criterion,
-        optimizer=optimizer,
-        num_epochs=20,
-        device=device,
-        eval_frequency=5
-    )
-
-    # Train the model
-    logger.info("Training started...")
-    trainer.train()
-
-    # Test the model
-    trainer.test()
-
-if __name__ == "__main__":
-    main()
+        return test_accuracy,test_loss

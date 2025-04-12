@@ -1,0 +1,26 @@
+name: CNN_Sweep
+project: Convolution Neural Networks
+entity: jay_gupta-indian-institute-of-technology-madras
+program: main.py
+method: bayes
+metric:
+  name: val_accuracy
+  goal: maximize
+parameters:
+
+  batch_size:
+    values: [16,32,64]
+  apply_augmentation:
+    values: [True, False]
+  apply_batch_norm:
+    values: [True, False]
+  dropout_prob:
+    values: [0.1, 0.2, 0.3]
+  learning_rate:
+    values: [0.001, 0.0001]
+  filter_depth:
+    values: ['increasing', 'decreasing', 'same']
+  kernel_size:
+    values: ['increasing', 'decreasing', 'same']
+run_cap: 200
+  

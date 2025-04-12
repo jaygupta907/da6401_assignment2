@@ -40,14 +40,22 @@ def main():
     if args.filter_depth == 'same':
         num_filters = [64,64,64,64,64]
     elif args.filter_depth == 'increasing':
-        num_filters = [32,64,128,256,512]
-    else:
+        num_filters = [64,128,256,512,1024]
+    elif args.filter_depth == 'decreasing':
         num_filters = [512,256,128,64,32]
 
+
+    kernel_size = None
+    if args.kernel_size == 'same':
+        kernel_size = [5,5,5,5,5]
+    elif args.kernel_size == 'increasing':
+        kernel_size = [3,3,5,5,7]
+    elif args.kernel_size == 'decreasing':
+        kernel_size = [7,5,5,3,3]
     
     # Initialize model
     model = SmallCNN(
-        input_channels=3,num_layers=5, num_filters=num_filters, kernel_size=[3,3,3,3,3],
+        input_channels=3,num_layers=5, num_filters=num_filters, kernel_size=kernel_size,
         activation='relu', dense_neurons=2048, apply_batch_norm=args.apply_batch_norm,
         num_classes=10,input_size=[128,128]
     )
@@ -75,6 +83,10 @@ def main():
 
     # Test the model
     trainer.test()
+
+    wandb.finish()
+    logger.info("Training and testing completed.")
+
 
 if __name__ == "__main__":
     main()
