@@ -87,8 +87,8 @@ def main():
 
     # Initialize model
     model = SmallCNN(
-        input_channels=3,num_layers=5, num_filters=[64,64,32,32,32], kernel_size=[5,5,3,3,3],
-        activation='mish', dense_neurons=512, apply_batch_norm=True,
+        input_channels=3,num_layers=5, num_filters=[64,128,256,256,512], kernel_size=[3,3,3,3,3],
+        activation='relu', dense_neurons=2048, apply_batch_norm=True,
         num_classes=10,input_size=[128,128]
     )
 
@@ -104,9 +104,9 @@ def main():
         test_loader=test_loader,
         criterion=criterion,
         optimizer=optimizer,
-        num_epochs=10,
+        num_epochs=20,
         device=device,
-        eval_frequency=2
+        eval_frequency=5
     )
 
     # Train the model

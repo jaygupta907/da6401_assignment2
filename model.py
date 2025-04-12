@@ -9,13 +9,14 @@ class SmallCNN(nn.Module):
     def __init__(
             self,
             input_channels=3,
-            num_filters=[32,32,32,32,32],
+            num_filters=[264,64,128,256,256],
             kernel_size=[5,5,5,5,5],
             activation='relu',
             dense_neurons=128,
             num_layers=5,
             num_classes=10,
             apply_batch_norm=False,
+            dropout_prob = 0.3,
             input_size=[128,128]):
         super(SmallCNN, self).__init__()
         self.input_channels = input_channels
@@ -27,15 +28,15 @@ class SmallCNN(nn.Module):
         self.num_layers = num_layers
         self.num_classes = num_classes
         self.input_size = input_size
-        
+        self.dropout_prob =  dropout_prob
         
         layers = []
         in_channels = self.input_channels
         for i in range(self.num_layers): 
             layers.append(nn.Conv2d(in_channels, self.num_filters[i], kernel_size=self.kernel_size[i], padding=self.kernel_size[i]//2))
-            layers.append(self.activation)
             if self.apply_batch_norm:
                 layers.append(nn.BatchNorm2d(self.num_filters[i]))
+            layers.append(self.activation)
             layers.append(nn.MaxPool2d(kernel_size=2, stride=2))
             in_channels = self.num_filters[i]
         
@@ -45,6 +46,7 @@ class SmallCNN(nn.Module):
         self.fc_layers = nn.Sequential(
             nn.Linear(self.conv_out_shape, self.dense_neurons),
             self.activation,
+            nn.Dropout(p=self.dropout_prob),
             nn.Linear(self.dense_neurons, self.num_classes)
         )
 
@@ -53,7 +55,7 @@ class SmallCNN(nn.Module):
     def _initialize_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
-                nn.init.xavier_uniform_(m.weight)
+                nn.init.xavier_normal_(m.weight)
                 if m.bias is not None:
                     nn.init.zeros_(m.bias)
     
