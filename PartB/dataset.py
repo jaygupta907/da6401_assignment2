@@ -34,10 +34,10 @@ class iNaturalistDataset:
         else:
             logging.warning("Dataset already exists")
 
-    def _get_transforms(self):
+    def _get_transforms(self,input_size=224):
         # Define data transformations
         transform_list = [
-            transforms.Resize((224,224)),
+            transforms.Resize((input_size,input_size)),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
         ]
@@ -48,14 +48,14 @@ class iNaturalistDataset:
                 transforms.RandomRotation(30),
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomAffine(translate=(0.1, 0.1),degrees=0),
-                transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),
+                transforms.RandomResizedCrop(input_size, scale=(0.8, 1.0)),
             ])
             transform_list = [augmentations] + transform_list
         
         return transforms.Compose(transform_list)
 
-    def get_dataloaders(self):
-        transform = self._get_transforms()
+    def get_dataloaders(self,input_size=224):
+        transform = self._get_transforms(input_size)
 
         # Load the train dataset
         train_dir = os.path.join(self.dataset_path, "inaturalist_12K/train")

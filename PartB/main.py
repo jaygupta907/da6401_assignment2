@@ -28,6 +28,16 @@ def main():
     logger.info(f"Using device: {device}")
 
 
+    input_size = {
+    "resnet50": 224,
+    "vgg16": 224,
+    "googlenet": 224,
+    "inception_v3": 299,
+    "efficientnet": 384,
+    "vit": 224,
+    }[args.model_name]
+
+
     # Load dataset
     dataset = iNaturalistDataset(
         dataset_path="../iNaturalist_dataset",
@@ -35,7 +45,7 @@ def main():
         apply_augmentation=args.apply_augmentation,
         download_url="https://storage.googleapis.com/wandb_datasets/nature_12K.zip"
     )
-    train_loader, val_loader, test_loader = dataset.get_dataloaders()
+    train_loader, val_loader, test_loader = dataset.get_dataloaders(input_size=input_size)
 
     
     # Initialize model

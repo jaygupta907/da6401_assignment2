@@ -7,7 +7,7 @@ def get_args():
     Returns:
         argparse.Namespace: Parsed arguments.
     """
-    parser = argparse.ArgumentParser(description='Multilayer Feedforward Neural Network')
+    parser = argparse.ArgumentParser(description='Convolutional Neural Network')
 
     # Adding various arguments for training configuration
     parser.add_argument('--wandb_project', type=str, default='Convolution Neural Networks', help='Project Name')

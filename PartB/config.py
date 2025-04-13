@@ -17,7 +17,7 @@ def get_args():
     parser.add_argument('--eval_frequency',type=int,default=1,help="What is the frequency of evaluation on validation dataset")
     parser.add_argument('--learning_rate',type=float,default=0.001,help="Learning rate of the optimizer")
     parser.add_argument('--save_frequency', type=int, default=40, help='Frequency of saving the model')
-    parser.add_argument('--model_name', type=str, default='vit', help='Model name for transfer learning')
+    parser.add_argument('--model_name', type=str, default='efficientnet', help='Model name for transfer learning')
     parser.add_argument('--apply_augmentation', type=bool, default=True, help='Whether to apply augmentation or not')
 
     return parser.parse_args()
