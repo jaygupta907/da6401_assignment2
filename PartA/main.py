@@ -15,21 +15,25 @@ logger = logging.getLogger()
 
 args = get_args()
 
-experiment_name = ''
-# wandb.init(project=args.wandb_project,
-#             entity=args.wandb_entity,
-#             config=args,
-#             name=experiment_name
-# )
+experiment_name = f"lr_{args.learning_rate}_filter_{args.filter_depth}_kernel_{args.kernel_size}_aug_{args.apply_augmentation}_batchnorm_{args.apply_batch_norm}_drop_{args.dropout_prob}_batch_{args.batch_size}_dense_{args.dense_neurons}_activation_{args.activation}"
+wandb.init(project=args.wandb_project,
+            entity=args.wandb_entity,
+            config=args,
+            name=experiment_name
+)
 
 
 def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     logger.info(f"Using device: {device}")
 
+
+    run = wandb.init()
+    config = wandb.config
+
     # Load dataset
     dataset = iNaturalistDataset(
-        dataset_path="iNaturalist_dataset",
+        dataset_path="../iNaturalist_dataset",
         batch_size=args.batch_size,
         apply_augmentation=args.apply_augmentation,
         download_url="https://storage.googleapis.com/wandb_datasets/nature_12K.zip"
@@ -56,7 +60,7 @@ def main():
     # Initialize model
     model = SmallCNN(
         input_channels=3,num_layers=5, num_filters=num_filters, kernel_size=kernel_size,
-        activation='relu', dense_neurons=2048, apply_batch_norm=args.apply_batch_norm,
+        activation=args.activation, dense_neurons=args.dense_neurons, apply_batch_norm=args.apply_batch_norm,
         num_classes=10,input_size=[128,128]
     )
 
@@ -72,9 +76,9 @@ def main():
         test_loader=test_loader,
         criterion=criterion,
         optimizer=optimizer,
-        num_epochs=args.num_epochs,
         device=device,
-        eval_frequency=args.eval_frequency
+        save_dir="model",
+        config=config
     )
 
     # Train the model

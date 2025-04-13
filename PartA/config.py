@@ -21,6 +21,8 @@ def get_args():
     parser.add_argument('--filter_depth',type=str,default='increasing',help='Whether to keep the filter depth same, increase by a factor of 2 or decrease by a factor of 2')
     parser.add_argument('--kernel_size',type=str,default='same',help='Whether to keep the kernel size same, increase by a factor of 2 or decrease by a factor of 2')
     parser.add_argument('--dropout_prob', type=float, default=0.2, help='Dropout probability in dense layers')
-
+    parser.add_argument('--dense_neurons', type=int, default=2048, help='Number of neurons in the dense layer')
+    parser.add_argument('--activation', type=str, default='relu', help='Activation function to use')
+    parser.add_argument('--save_frequency', type=int, default=40, help='Frequency of saving the model')
 
     return parser.parse_args()
