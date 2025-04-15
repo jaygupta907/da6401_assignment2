@@ -14,7 +14,7 @@ parameters:
   apply_batch_norm:
     values: [True, False]
   dropout_prob:
-    values: [0.1, 0.2, 0.3]
+    values: [0.2, 0.3,0.4,0.5]
   learning_rate:
     values: [0.001, 0.0001]
   filter_depth:
@@ -25,5 +25,5 @@ parameters:
     values: [1024,2048,4096]
   activation:
     values: ['relu', 'gelu','silu','mish']
-run_cap: 200
+run_cap: 300
   
