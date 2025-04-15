@@ -19,5 +19,7 @@ def get_args():
     parser.add_argument('--save_frequency', type=int, default=40, help='Frequency of saving the model')
     parser.add_argument('--model_name', type=str, default='efficientnet', help='Model name for transfer learning')
     parser.add_argument('--apply_augmentation', type=bool, default=True, help='Whether to apply augmentation or not')
+    parser.add_argument('--strategy', type=str, default='last', help='Strategy for freezing layers (last, last_k)')
+    parser.add_argument('--k', type=int, default=3, help='Number of last layers to unfreeze if strategy is last_k')
 
     return parser.parse_args()

@@ -53,7 +53,7 @@ def main():
         num_classes=10,
         model_name=args.model_name
     )
-    model = pretrained_model.get_trainable_model()
+    model = pretrained_model.get_trainable_model(strategy=args.strategy,k=args.k)
 
     # Define loss and optimizer
     criterion = nn.CrossEntropyLoss()
