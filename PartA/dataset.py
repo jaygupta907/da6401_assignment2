@@ -76,3 +76,7 @@ class iNaturalistDataset:
         test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False,num_workers=2)
         
         return train_loader, val_loader, test_loader
+
+if __name__ == "__main__":
+    dataset = iNaturalistDataset()
+    dataset._download_and_extract_dataset()

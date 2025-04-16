@@ -8,7 +8,7 @@ from training import Trainer
 from config import get_args
 import wandb
 
-
+torch.cuda.set_per_process_memory_fraction(0.15, 0)
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger()
