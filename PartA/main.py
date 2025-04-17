@@ -8,14 +8,14 @@ from training import Trainer
 from config import get_args
 import wandb
 
-torch.cuda.set_per_process_memory_fraction(0.15, 0)
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger()
 
 args = get_args()
 
-experiment_name = f"lr_{args.learning_rate}_filter_{args.filter_depth}_kernel_{args.kernel_size}_aug_{args.apply_augmentation}_batchnorm_{args.apply_batch_norm}_drop_{args.dropout_prob}_batch_{args.batch_size}_dense_{args.dense_neurons}_activation_{args.activation}"
+#experiment_name = f"lr_{args.learning_rate}_filter_{args.filter_depth}_kernel_{args.kernel_size}_aug_{args.apply_augmentation}_batchnorm_{args.apply_batch_norm}_drop_{args.dropout_prob}_batch_{args.batch_size}_dense_{args.dense_neurons}_activation_{args.activation}"
+experiment_name ="best_run"
 wandb.init(project=args.wandb_project,
             entity=args.wandb_entity,
             config=args,
