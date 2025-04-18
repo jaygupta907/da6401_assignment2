@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger()
 
 class Trainer:
-    def __init__(self,args, model, train_loader, val_loader, test_loader, criterion, optimizer, device="cuda", save_dir="model"):
+    def __init__(self,args, model, train_loader, val_loader, test_loader, criterion, optimizer, device="cuda", save_dir="model",model_name='googlenet'):
         self.model = model
         self.train_loader = train_loader
         self.val_loader = val_loader
@@ -19,8 +19,10 @@ class Trainer:
         self.num_epochs = args.num_epochs
         self.eval_frequency = args.eval_frequency
         self.save_frequency = args.save_frequency
+        self.model_name = model_name
         self.save_dir = save_dir
         self.device = device
+        self.model_name = args.model_name
 
     def train(self):
         self.model.to(self.device)
@@ -34,12 +36,18 @@ class Trainer:
 
                 self.optimizer.zero_grad()
                 outputs = self.model(images)
-                loss = self.criterion(outputs, labels)
+                if (self.model_name=='googlenet' or self.model_name=='inception_v3'):
+                    loss = self.criterion(outputs.logits, labels)
+                else:
+                     loss = self.criterion(outputs, labels)
                 loss.backward()
                 self.optimizer.step()
 
                 running_loss += loss.item() * images.size(0)
-                _, predicted = torch.max(outputs, 1)
+                if (self.model_name=='googlenet' or self.model_name=='inception_v3'):
+                    _, predicted = torch.max(outputs.logits, 1)
+                else:
+                    _, predicted = torch.max(outputs, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 

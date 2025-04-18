@@ -26,11 +26,11 @@ class PretrainedModel(nn.Module):
             model.fc = nn.Linear(model.fc.in_features, self.num_classes)
         elif self.model_name == 'googlenet':
             weights = GoogLeNet_Weights.DEFAULT
-            model = googlenet(weights=weights, aux_logits=False)
+            model = googlenet(weights=weights, aux_logits=True)
             model.fc = nn.Linear(model.fc.in_features, self.num_classes)
         elif self.model_name == 'inception_v3':
             weights = Inception_V3_Weights.DEFAULT
-            model = inception_v3(weights=weights, aux_logits=False)
+            model = inception_v3(weights=weights, aux_logits=True)
             model.fc = nn.Linear(model.fc.in_features, self.num_classes)
         elif self.model_name == 'efficientnet':
             weights = EfficientNet_V2_S_Weights.DEFAULT
